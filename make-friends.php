@@ -1,6 +1,3 @@
-<div style='margin-bottom:10px;'>
-<a href='/fb/test-user-create.php'>Create Test User</a>
-</div>
 <?php
 require_once('config.php');
 require_once( 'sdk/src/facebook.php');
@@ -10,7 +7,11 @@ $facebook = new Facebook( array( 'appId' => $app_id,
                                  'cookie' => true ) );
 $session = $facebook->getSession();
 
+$user_id = $_GET['id'];
+$user_access_token = $_GET['access_token'];
+
 $url = 'https://graph.facebook.com/oauth/access_token';
+
 $params=array(
                          "type" => "client_cred",
                          "client_id" => $app_id,
@@ -38,18 +39,41 @@ curl_close($ch);
 $request = json_decode($data,true);
 $data = $request['data'];
 
+$ch = curl_init();
+curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+
 
 foreach ($data as $key => $value) {
-  //echo '<br>Test user ID: '.$request[$key]['id'].'<br>';
-  //  echo 'Log in as this test user: ' . $request[$key]['login_url'] . '<br>';
-  echo "<div style='clear:both;height:15px;'>";
-  echo "<div style='float:left;width:30%;'>Test User: " . $data[$key]['id'] . "</div>";
-  echo "<div style='float:left;'><a href='" . $data[$key]['login_url'] . "'>Log In</a></div>";
-  echo "<div style='float:left;margin-left:10px;'><a href='/fb/delete.php?id=" . $data[$key]['id'] . "'>Delete</a></div>";
   if( array_key_exists( 'access_token', $data[$key] ) ) {
-    echo "<div style='float:left;margin-left:10px;'><a href='/fb/make-friends.php?id=" . $data[$key]['id'] . "&access_token=" . $data[$key]['access_token'] . "' >Make Friends</a></div>";
+    if( $user_id != $data[$key]['id'] ) {
+      $url = "https://graph.facebook.com/$user_id/friends/" . $data[$key]['id'];
+      echo "<div>" . $url . "</div>";
+    
+      $params = array( "access_token" => $user_access_token );
+      curl_setopt($ch, CURLOPT_URL, $url );
+      curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($params, null, '&'));
+      $result = curl_exec( $ch );
+      echo "<div>Friend result for " . $user_id . " =  $result</div>";
+    
+      $url = "https://graph.facebook.com/" . $data[$key]['id'] . "/friends/$user_id";
+      echo "<div>" . $url . "</div>";
+    
+      $params = array( "access_token" => $data[$key]['access_token'] );
+      curl_setopt($ch, CURLOPT_URL, $url );
+      curl_setopt( $ch, CURLOPT_POSTFIELDS, http_build_query( $params, null, '&' ));
+      $result = curl_exec($ch);
+      echo "<div>Friend result for " . $data[$key]['id'] . " = $result</div>";
+    }
+    
   }
-  echo "</div>";
+}
+curl_close($ch);
 
-  }
 ?>
+<div>
+<a href='/fb/list-test-users.php'>List Test Users</a>
+</div>
+<div>
+<a href='/fb/index.php'>Home</a>
+</div>

@@ -30,6 +30,7 @@ $access_token = str_replace('access_token=', '', $data);
 $attachment = array('access_token' => $access_token);
  
 $request = $facebook->api("/$app_id/accounts/test-users?installed=false&permissions=", 'POST', $attachment);
+$new_id = $request['id'];
 ?>
 <div> 
 Test user ID: <?  echo($request['id']); ?>
@@ -37,4 +38,5 @@ Test user ID: <?  echo($request['id']); ?>
 <div>
 <a href='<? echo( $request['login_url'] ); ?>'>Log in as test user</a>
 </div>
+
 
