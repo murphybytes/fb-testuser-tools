@@ -1,2 +1,16 @@
 Test User Utility for Facebook
 
+This is a little utility that helps create test users for facebook applications.   You can
+also make test users friends with one another, delete them and log them in.  See
+
+
+
+To make this work we need to supply a config.php file with your Facebook application
+ID and secret defined in it.  
+
+You will need to put the domain for your Facebook application in /etc/hosts unless you are hosting
+these pages on a machine with the domain name of your facebook application.
+
+Set up your php app in a path  /fb so your requests should look like so:
+
+http://myfacebookappdomain.com/fb/list-test-users.php
